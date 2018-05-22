@@ -194,6 +194,27 @@ public class TopController
 		return "redirect:/list?isSearche=yes&username="+username;
     }
 
+    @RequestMapping(value = "/deletedata", method = RequestMethod.POST)
+    @Transactional("transactionManagerName")
+    public String deletedata(@Validated TodoForm form, BindingResult result, Model model,@RequestParam(value = "username") String username)
+    {
+    	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
+    	TransactionStatus tSts = txMgr.getTransaction(dtDef);
+
+		try
+		{
+			jdbcTemplate.update("delete from todo where id=?", form.getId());
+			txMgr.commit(tSts);
+		}
+		catch(Exception ex)
+		{
+			txMgr.rollback(tSts);
+			logger.debug("update失敗",ex.toString());
+		}
+
+		return "redirect:/list?isSearche=no&username="+username;
+    }
+
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String index(Locale locale,@RequestParam("isSearche") String isSearche, Model model,HttpSession session,@RequestParam(value = "username") String username)
 	{

@@ -76,7 +76,7 @@
 							  		<span  style="display: inline-block;width:100%;">${mdata.content}</span>
 							  	 </c:if>
 							 </div>
-						  	<div class="col-sm-4">
+						  	<div class="col-sm-2">
 							  	 <c:if test="${mdata.done}" >
 				                    <form  method="post" action="${pageContext.request.contextPath}/restore?username=${username}">
 				                        <input type="hidden" name="id" value="${mdata.id}" />
@@ -91,6 +91,14 @@
 				                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 				                    </form>
 							  	 </c:if>
+							  	 </div>
+							  	<div class="col-sm-2">
+				                    <form  method="post" action="${pageContext.request.contextPath}/deletedata?username=${username}">
+				                        <input type="hidden" name="id" value="${mdata.id}" />
+				                        <input type="submit" class="btn btn-primary" value="削除" style="width:100%;"/>
+				                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+				                    </form>
+				                    </div>
 							  </div>
 					    </div>
 					    </div>
