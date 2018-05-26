@@ -6,9 +6,20 @@ public class TodoForm implements Serializable
 {
 	private String id;
 	private String content;
+	private String username;
 	private boolean done;
 
-	public String getId() {
+	public String getUsername()
+	{
+		return username;
+	}
+	public void setUsername(String username)
+	{
+		this.username = username;
+	}
+
+	public String getId()
+	{
 		return id;
 	}
 	public void setId(String id) {

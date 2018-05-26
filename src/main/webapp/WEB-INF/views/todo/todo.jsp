@@ -43,13 +43,14 @@
 	        </div>
 	    </nav>
 	    <div class="container">
-		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem?username=${username}">
+		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem">
 		   <div class="form-group">
 		       <div class="row">
 		       	   <form:errors path="content" cssStyle="color:red" />
 		           <div class="col-sm-8"><input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" size="100%" type="text"></div>
 		           <div class="col-sm-2"><input type="submit" class="btn btn-success btn-block" name="newItem" value="登録" size="100%"></div>
 		           <div class="col-sm-2"><input type="submit" class="btn btn-success btn-block" name="searchItem" value="検索" size="100%"></div>
+		           <input type="hidden" name="username" value="${username}" />
 		           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		       </div>
 		   </div>
@@ -78,23 +79,27 @@
 							 </div>
 						  	<div class="col-sm-2">
 							  	 <c:if test="${mdata.done}" >
-				                    <form  method="post" action="${pageContext.request.contextPath}/restore?username=${username}">
+				                    <form  method="post" action="${pageContext.request.contextPath}/restore">
 				                        <input type="hidden" name="id" value="${mdata.id}" />
+				                        <input type="hidden" name="username" value="${username}" />
 				                        <input type="submit" class="btn btn-primary" value="復活" style="width:100%;"/>
 				                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+
 				                    </form>
 							  	 </c:if>
 							  	 <c:if test="${not mdata.done}" >
-				                    <form  method="post" action="${pageContext.request.contextPath}/done?username=${username}">
+				                    <form  method="post" action="${pageContext.request.contextPath}/done">
 				                        <input type="hidden" name="id" value="${mdata.id}" />
+				                        <input type="hidden" name="username" value="${username}" />
 				                        <input type="submit" class="btn btn-danger" value="完了" style="width:100%;"/>
 				                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 				                    </form>
 							  	 </c:if>
 							  	 </div>
 							  	<div class="col-sm-2">
-				                    <form  method="post" action="${pageContext.request.contextPath}/deletedata?username=${username}">
+				                    <form  method="post" action="${pageContext.request.contextPath}/deletedata">
 				                        <input type="hidden" name="id" value="${mdata.id}" />
+				                        <input type="hidden" name="username" value="${username}" />
 				                        <input type="submit" class="btn btn-primary" value="削除" style="width:100%;"/>
 				                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 				                    </form>

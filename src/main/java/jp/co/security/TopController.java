@@ -28,14 +28,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jp.co.security.form.RegiForm;
 import jp.co.security.form.TodoForm;
+import jp.co.security.model.RedirectModel;
 import jp.co.security.model.TodoItem;
-
-
 
 @Controller
 public class TopController
@@ -94,20 +92,8 @@ public class TopController
 		return "login";
 	}
 
-    @RequestMapping(value = "/detail", method = RequestMethod.POST)
-    @Transactional("transactionManagerName")
-    public String detail(@Validated TodoForm form, BindingResult result, Model model,HttpSession session,@RequestParam(value = "username") String username)
-    {
-    	String rcv = form.getId() ;
-
-    	model.addAttribute("id", rcv);
-    	model.addAttribute("username", username);
-
-		return "todo/detail";
-    }
-
 	@RequestMapping(value = "/top", method = RequestMethod.GET)
-	public String top(Locale locale, Model model,RedirectAttributes redirectAttributes) {
+	public String top(Locale locale, Model model,RedirectAttributes redirectAttributes,RedirectAttributes redirectAttrs) {
 
 		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -128,20 +114,25 @@ public class TopController
 		}
 
 		model.addAttribute("username", username);
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(username);
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
 
-		return "redirect:/list?isSearche=no&username="+username;
+		return "redirect:/list";
 	}
 
     @RequestMapping(value = "/newItem", params="newItem",method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String newItem(@Validated TodoForm form, BindingResult result, Model model,@RequestParam(value = "username") String username)
+    public String newItem(@Validated TodoForm form, BindingResult result, Model model,RedirectAttributes redirectAttrs)
     {
     	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
     	TransactionStatus tSts = txMgr.getTransaction(dtDef);
 
 		try
 		{
-			jdbcTemplate.update("INSERT INTO todo (content,done,email) VALUES (?, ?,?)", form.getContent(),false,username);
+			jdbcTemplate.update("INSERT INTO todo (content,done,email) VALUES (?, ?,?)", form.getContent(),false,form.getUsername());
 			txMgr.commit(tSts);
 		}
 		catch(Exception ex)
@@ -150,21 +141,27 @@ public class TopController
 			logger.debug("update失敗",ex.toString());
 		}
 
-		return "redirect:/list?isSearche=no&username="+username;
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(form.getUsername());
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
+
+		return "redirect:/list";
     }
 
     @RequestMapping(value = "/newItem", params="searchItem",method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String searchItem(@Validated TodoForm form, BindingResult result, Model model,HttpSession session,@RequestParam(value = "username") String username)
+    public String searchItem(@Validated TodoForm form, BindingResult result,Model model,HttpSession session,RedirectAttributes redirectAttrs)
     {
     	String likeSQL = null;
     	if(form.getContent()!=null && !form.getContent().equals(""))
     	{
-    		likeSQL = "select * from todo where email = '" + username+ "' and content like '%" + form.getContent() + "%'";
+    		likeSQL = "select * from todo where email = '" + form.getUsername()+ "' and content like '%" + form.getContent() + "%'";
     	}
     	else
     	{
-    		likeSQL = "select * from todo where email = '" + username +"'";
+    		likeSQL = "select * from todo where email = '" + form.getUsername() +"'";
     	}
 
 		//テーブルtodoから全データを取得する
@@ -188,15 +185,21 @@ public class TopController
 			mList.add(tmp);
 		}
 
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("yes");
+    	rdm.setUsername(form.getUsername());
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
+
 		//画面にわたすリストをsessionに設定しリダイレクト先でこのデータを使用する
 		session.setAttribute("mList", mList);
 
-		return "redirect:/list?isSearche=yes&username="+username;
+		return "redirect:/list";
     }
 
     @RequestMapping(value = "/deletedata", method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String deletedata(@Validated TodoForm form, BindingResult result, Model model,@RequestParam(value = "username") String username)
+    public String deletedata(@Validated TodoForm form, BindingResult result, Model model,RedirectAttributes redirectAttrs)
     {
     	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
     	TransactionStatus tSts = txMgr.getTransaction(dtDef);
@@ -212,21 +215,37 @@ public class TopController
 			logger.debug("update失敗",ex.toString());
 		}
 
-		return "redirect:/list?isSearche=no&username="+username;
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(form.getUsername());
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
+		return "redirect:/list";
     }
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
-	public String index(Locale locale,@RequestParam("isSearche") String isSearche, Model model,HttpSession session,@RequestParam(value = "username") String username)
+	public String index(Locale locale,Model model,HttpSession session,RedirectAttributes redirectAttrs)
 	{
-		if(isSearche.equals("yes"))
+		//リダイレクトで受け取るデータクラス
+		String rIsSearch="";
+		String rUsername="";
+
+		RedirectModel tmpRM = (RedirectModel)model.asMap().get("keydata");
+		if(tmpRM!=null)
+		{
+			rIsSearch = tmpRM.getIsSearch();
+			rUsername = tmpRM.getUsername();
+		}
+
+		if(rIsSearch.equals("yes"))
 		{
 			List<TodoItem> mListM = (List<TodoItem>) session.getAttribute("mList");
 			model.addAttribute("mList", mListM );
-			model.addAttribute("username", username);
+			model.addAttribute("username", rUsername);
 			return "todo/todo";
 		}
 
-		String listSQL = "select * from todo where email='" + username +"'";
+		String listSQL = "select * from todo where email='" + rUsername +"'";
 
 		//テーブルtodoから全データを取得する
 		List<Map<String, Object>> ret = jdbcTemplate.queryForList(listSQL);
@@ -248,15 +267,21 @@ public class TopController
 			}
 			mList.add(tmp);
 		}
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(rUsername);
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
+
 		//画面にわたすリストをModelに設定する
 		model.addAttribute("mList", mList );
-		model.addAttribute("username", username);
+		model.addAttribute("username", rUsername);
 		return "todo/todo";
 	}
 
     @RequestMapping(value = "/restore", method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String restore(@Validated TodoForm form, BindingResult result, Model model,@RequestParam(value = "username") String username)
+    public String restore(@Validated TodoForm form, BindingResult result, Model model,RedirectAttributes redirectAttrs)
     {
     	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
     	TransactionStatus tSts = txMgr.getTransaction(dtDef);
@@ -287,15 +312,18 @@ public class TopController
     		logger.debug("update対象なし");
     	}
 
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(form.getUsername());
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
 
-
-//        return "redirect:/list?isSearche=no";
-    	return "redirect:/list?isSearche=no&username="+username;
+    	return "redirect:/list";
     }
 
     @RequestMapping(value = "/done", method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String done(@Validated TodoForm form, BindingResult result, Model model,@RequestParam(value = "username") String username)
+    public String done(@Validated TodoForm form, BindingResult result, Model model,RedirectAttributes redirectAttrs)
     {
 
     	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
@@ -327,17 +355,14 @@ public class TopController
     		logger.debug("update対象なし");
     	}
 
+		//コントローラー間でやりとりするデータ
+    	RedirectModel rdm = new RedirectModel();
+    	rdm.setIsSearch("no");
+    	rdm.setUsername(form.getUsername());
+    	redirectAttrs.addFlashAttribute("keydata", rdm);
 
-
-//        return "redirect:/list?isSearche=no";
-    	return "redirect:/list?isSearche=no&username="+username;
+    	return "redirect:/list";
     }
-
-	@RequestMapping(value = "/test", method = RequestMethod.POST)
-	public String test(Locale locale, Model model,@RequestParam(value = "username") String username)
-	{
-		return "redirect:/list?isSearche=no&username="+username;
-	}
 
 	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public String user(Locale locale, Model model)
