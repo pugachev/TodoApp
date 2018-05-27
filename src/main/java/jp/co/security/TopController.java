@@ -118,6 +118,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(username);
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
 		return "redirect:/list";
@@ -125,11 +126,21 @@ public class TopController
 
     @RequestMapping(value = "/newItem", params="newItem",method = RequestMethod.POST)
     @Transactional("transactionManagerName")
-    public String newItem(@Validated TodoForm form, BindingResult result, Model model,RedirectAttributes redirectAttrs)
+    public String newItem(@Validated @ModelAttribute TodoForm form, BindingResult result, HttpSession session,Model model,RedirectAttributes redirectAttrs)
     {
+    	if(result.hasErrors())
+    	{
+    		//コントローラー間でやりとりするデータ
+        	RedirectModel rdm = new RedirectModel();
+        	rdm.setIsSearch("no");
+        	rdm.setUsername(form.getUsername());
+        	rdm.setErrorMessage("何か入力して下さい");
+        	redirectAttrs.addFlashAttribute("keydata", rdm);
+    		return "redirect:/list";
+    	}
+
     	DefaultTransactionDefinition dtDef = new DefaultTransactionDefinition();
     	TransactionStatus tSts = txMgr.getTransaction(dtDef);
-
 		try
 		{
 			jdbcTemplate.update("INSERT INTO todo (content,done,email) VALUES (?, ?,?)", form.getContent(),false,form.getUsername());
@@ -145,6 +156,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(form.getUsername());
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
 		return "redirect:/list";
@@ -189,6 +201,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("yes");
     	rdm.setUsername(form.getUsername());
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
 		//画面にわたすリストをsessionに設定しリダイレクト先でこのデータを使用する
@@ -219,6 +232,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(form.getUsername());
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 		return "redirect:/list";
     }
@@ -229,12 +243,13 @@ public class TopController
 		//リダイレクトで受け取るデータクラス
 		String rIsSearch="";
 		String rUsername="";
-
+		String rErrorMessage="";
 		RedirectModel tmpRM = (RedirectModel)model.asMap().get("keydata");
 		if(tmpRM!=null)
 		{
 			rIsSearch = tmpRM.getIsSearch();
 			rUsername = tmpRM.getUsername();
+			rErrorMessage = tmpRM.getErrorMessage();
 		}
 
 		if(rIsSearch.equals("yes"))
@@ -242,6 +257,7 @@ public class TopController
 			List<TodoItem> mListM = (List<TodoItem>) session.getAttribute("mList");
 			model.addAttribute("mList", mListM );
 			model.addAttribute("username", rUsername);
+			model.addAttribute("resutErrors", rErrorMessage);
 			return "todo/todo";
 		}
 
@@ -271,11 +287,13 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(rUsername);
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
 		//画面にわたすリストをModelに設定する
 		model.addAttribute("mList", mList );
 		model.addAttribute("username", rUsername);
+		model.addAttribute("resutErrors",rErrorMessage);
 		return "todo/todo";
 	}
 
@@ -316,6 +334,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(form.getUsername());
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
     	return "redirect:/list";
@@ -359,6 +378,7 @@ public class TopController
     	RedirectModel rdm = new RedirectModel();
     	rdm.setIsSearch("no");
     	rdm.setUsername(form.getUsername());
+    	rdm.setErrorMessage("");
     	redirectAttrs.addFlashAttribute("keydata", rdm);
 
     	return "redirect:/list";

@@ -2,9 +2,13 @@ package jp.co.security.form;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Size;
+
 public class TodoForm implements Serializable
 {
 	private String id;
+
+	@Size(min=1,max=30)
 	private String content;
 	private String username;
 	private boolean done;

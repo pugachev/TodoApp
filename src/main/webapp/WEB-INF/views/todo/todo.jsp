@@ -33,7 +33,7 @@
 	</head>
 	<body>
 	    <nav class="navbar navbar-light navbar-expand-md navigation-clean-search">
-	        <div class="container"><a class="navbar-brand" href="#">${username}さん ようこそ</a><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+	        <div class="container"><a class="navbar-brand" href="#">${username}さん ようこそ</a><div style="color:red">${resutErrors}</div><button class="navbar-toggler" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
 	            <div class="collapse navbar-collapse" id="navcol-1">
 			        <form name="f" action="<c:url value='/logout'/>" method="post" >
 			 				<input type="submit" class="btn btn-light action-button"  name="login" value="ログアウト">
@@ -46,7 +46,6 @@
 		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem">
 		   <div class="form-group">
 		       <div class="row">
-		       	   <form:errors path="content" cssStyle="color:red" />
 		           <div class="col-md-8"><input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" size="100%" type="text"></div>
 		           <div class="col-md-2"><input type="submit" class="btn btn-success btn-block" name="newItem" value="登録" size="100%" ></div>
 		           <div class="col-md-2"><input type="submit" class="btn btn-success btn-block" name="searchItem" value="検索" size="100%"></div>

@@ -4,6 +4,15 @@ public class RedirectModel
 {
 	String username;
 	String isSearch;
+	String errorMessage;
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
 
 	public String getUsername()
 	{
