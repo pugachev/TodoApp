@@ -103,7 +103,7 @@
 			<table class="table table-striped table-bordered " id="data">
 			  <thead>
 			    <tr>
-			      <th scope="col" colspan="2">Todo内容一覧 <a class="btn btn-xs bg-primary text-white bg-dark" href="#" onclick="openInsertModal(); return false;" role="button" style="float:right;margin:5px;">登録</a><a class="btn btn-xs bg-primary text-white bg-dark" href="#" onclick="openSearchModal(); return false;"  role="button" style="float:right;margin:5px;">検索</a></th>
+			      <th scope="col" colspan="2">Todo内容一覧 <a class="btn btn-primary" href="#" onclick="openSearchModal(); return false;"  role="button" style="float:right;margin:5px;">検索</a><a class="btn btn-primary" href="#" onclick="openInsertModal(); return false;" role="button" style="float:right;margin:5px;">登録</a></th>
 			    </tr>
 			  </thead>
 			  <tbody>
@@ -158,8 +158,8 @@
 			</table>
 		</div>
 		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem" style="visibility:hidden;">
-		           <input type="submit" class="btn btn-success btn-block" name="newItem" value="登録" style="visibility:hidden;">
-		           <input type="submit" class="btn btn-success btn-block" name="searchItem" value="検索" style="visibility:hidden;">
+		           <input type="submit" name="newItem" value="登録" style="visibility:hidden;">
+		           <input type="submit" name="searchItem" value="検索" style="visibility:hidden;">
 		           <input type="hidden" name="username" value="${username}" />
 		           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		  </form:form>
@@ -179,14 +179,10 @@
       <!-- Modal body -->
       <div class="modal-body">
 		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem">
-		   <div class="form-group">
-		       <div class="row">
-		           <div class="col-md-8"><input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" size="100%" type="text"></div>
-		           <div class="col-md-4"><input type="submit" class="btn btn-success btn-block" name="newItem" value="登録" size="100%" ></div>
-		           <input type="hidden" name="username" value="${username}" />
-		           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-		       </div>
-		   </div>
+	         <input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" style="width:100%;margin:5px;" type="text">
+	         <input type="submit" class="btn btn-success btn-block" name="newItem" value="登録" style="width:100%;margin:5px;" >
+	         <input type="hidden" name="username" value="${username}" />
+	         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		  </form:form>
       </div>
 
@@ -210,14 +206,10 @@
       <!-- Modal body -->
       <div class="modal-body">
 		 <form:form modelAttribute="todoForm" action="${pageContext.request.contextPath}/newItem">
-		   <div class="form-group">
-		       <div class="row">
-		           <div class="col-md-8"><input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" size="100%" type="text"></div>
-		           <div class="col-md-4"><input type="submit" class="btn btn-success btn-block" name="searchItem" value="検索" size="100%"></div>
-		           <input type="hidden" name="username" value="${username}" />
-		           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-		       </div>
-		   </div>
+	         <input class="form-control input-sm " id="email" name="content" placeholder="Todo内容" style="width:100%;margin:5px;" type="text">
+	         <input type="submit" class="btn btn-success btn-block" name="searchItem" value="検索" style="width:100%;margin:5px;">
+	         <input type="hidden" name="username" value="${username}" />
+	         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		  </form:form>
       </div>
 
