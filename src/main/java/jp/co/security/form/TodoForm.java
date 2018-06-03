@@ -7,7 +7,18 @@ import javax.validation.constraints.Size;
 public class TodoForm implements Serializable
 {
 	private String id;
+	private String deletePostId;
 
+
+
+	public String getDeletePostId()
+	{
+		return deletePostId;
+	}
+	public void setDeletePostId(String deletePostId)
+	{
+		this.deletePostId = deletePostId;
+	}
 	@Size(min=1,max=30)
 	private String content;
 	private String username;

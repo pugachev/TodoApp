@@ -219,7 +219,7 @@ public class TopController
 
 		try
 		{
-			jdbcTemplate.update("delete from todo where id=?", form.getId());
+			jdbcTemplate.update("delete from todo where id=?", form.getDeletePostId());
 			txMgr.commit(tSts);
 		}
 		catch(Exception ex)

@@ -44,6 +44,8 @@
 		{
 			var btn='';
 			btn=document.getElementById('deleteDataBtn');
+/* 			var tmp = $('input:hidden[name="deleteid"]').val();*/
+			var tmp = $('input:hidden[name="deletePostId"]').val();
 			btn.click();
 		}
 		function openInsertModal()
@@ -69,12 +71,12 @@
 
 			$(".content").click(function(){
 				contents = $(this).text();
-				bntFlg=$(this).attr("value");
+				bntFlg=$(this).attr("value").split(',');
 				$("#TodoModal").modal("show");
 			});
 			$("#TodoModal").on('show.bs.modal',function(){
 				var modal = $(this);
-				if(bntFlg=="1"){
+				if(bntFlg[0]=="done"){
 					modal.find('#target').html( "<span style='text-decoration: line-through;'>"+contents+"</span>");
 					var val = $('#TodoModal [name=opbtn]').val();
 					$('#TodoModal [name=opbtn]').val('復活');
@@ -84,6 +86,10 @@
 					var val = $('#TodoModal [name=opbtn]').val();
 					$('#TodoModal [name=opbtn]').val('完了');
 				}
+				/* $('#TodoModal [name=deleteid]').val(btnFlg[1]); */
+/* 				$('input:hidden[name="deleteid"]').val(bntFlg[1]);
+				var tmp = $('input:hidden[name="deleteid"]').val(); */
+				$('input:hidden[name="deletePostId"]').val(bntFlg[1]);
 			});
 		});
 		</script>
@@ -113,13 +119,12 @@
 					  	<div class="container">
 						  	<div class="form-group">
 							  	<div class="row">
-								  	<div class="col-md-8">
+								  	<div class="col-md-8" id="statusRow">
 									  	 <c:if test="${mdata.done}" >
-									  		<span class="content" style="width:100%;display: inline-block;text-decoration: line-through;" value="1">${mdata.content}</span>
+									  		<span class="content" style="width:100%;display: inline-block;text-decoration: line-through;" name="status" value="done,${mdata.id}">${mdata.content}</span>
 									  	 </c:if>
 									  	 <c:if test="${not mdata.done}" >
-									  		<span  class="content" style="width:100%;display: inline-block;" value="2">${mdata.content}</span>
-									  		<input type="hidden" id="checkflg2" value="2" />
+									  		<span  class="content" style="width:100%;display: inline-block;" name="status" value="undone,${mdata.id}">${mdata.content}</span>
 									  	 </c:if>
 									 </div>
 								  	<div class="col-md-2">
@@ -142,7 +147,7 @@
 									  	 </div>
 									  	<div class="col-md-2">
 						                    <form  method="post" action="${pageContext.request.contextPath}/deletedata">
-						                        <input type="hidden" name="id" value="${mdata.id}" />
+						                        <input type="hidden" name="deletePostId" value="${mdata.id}" />
 						                        <input type="hidden" name="username" value="${username}" />
 						                        <input type="submit" id="deleteDataBtn" value="削除" style="width:100%;visibility:hidden;"/>
 						                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -163,6 +168,12 @@
 		           <input type="hidden" name="username" value="${username}" />
 		           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 		  </form:form>
+<%--           <form  method="post" action="${pageContext.request.contextPath}/deletedata">
+               <input type="hidden" name="deletePostId" value="${mdata.id}" />
+               <input type="hidden" name="username" value="${username}" />
+               <input type="submit" id="deleteDataBtn" value="削除" style="width:100%;visibility:hidden;"/>
+               <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+           </form> --%>
 	</body>
 </html>
 <!-- The InsertModal -->
